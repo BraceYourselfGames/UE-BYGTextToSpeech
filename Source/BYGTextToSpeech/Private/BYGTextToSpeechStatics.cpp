@@ -1,7 +1,9 @@
 #include "BYGTextToSpeechStatics.h"
 #include "BYGTextToSpeechSoundWave.h"
-#include <windows.h>
+#if PLATFORM_WINDOWS
+#include "Windows/MinWindows.h"
 #include <winnls.h>
+#endif
 
 USoundWave* UBYGTextToSpeechStatics::TextToWave( FString VoiceRequiredAttributes, FString VoiceOptionalAttributes, int32 Rate, FString Text )
 {
@@ -19,18 +21,22 @@ bool UBYGTextToSpeechStatics::SpeakText( const FText& Text )
 	return true;
 }
 
-bool UBYGTextToSpeechStatics::SpeakTextAll( const FText& Text, EBYGSpeakerGender Gender, const FString& Locale, int32 Rate )
+USoundWave* UBYGTextToSpeechStatics::SpeakTextAll( const FText& Text, EBYGSpeakerGender Gender, const FString& Locale, int32 Rate )
 {
+#if PLATFORM_WINDOWS
 	//vendor=microsoft;language=409
 
 	const LCID Lcid = LocaleNameToLCID( *Locale, 0 );
 
-	const FString GenderString = Gender == EBYGSpeakerGender::Masculine ? "Male" : "Female";
-	const FString VoiceRequiredAttributes = FString::Printf( TEXT( "vendor=microsoft;language=%d;gender=%s" ), Lcid, *GenderString);
-	const FString VoiceOptionalAttributes = "";
+	const FString GenderString = Gender == EBYGSpeakerGender::Masculine ? "male" : "female";
+	const FString VoiceRequiredAttributes = FString::Printf( TEXT( "vendor=microsoft;language=%x" ), Lcid );
+	const FString VoiceOptionalAttributes = FString::Printf( TEXT( "gender=%s" ), *GenderString );
 
-	auto TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
+	UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
 	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text.ToString() );
 
-	return true;
+	return TTSSoundWave;
+#else
+	return nullptr;
+#endif
 }

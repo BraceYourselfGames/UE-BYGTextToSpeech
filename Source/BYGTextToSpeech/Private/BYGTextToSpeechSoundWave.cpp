@@ -4,7 +4,9 @@
 bool UBYGTextToSpeechSoundWave::Initialize(const FString &VoiceRequiredAttributes, const FString &VoiceOptionalAttributes, int32 Rate, const FString &Text)
 {
 	unsigned long BytesRead;
-	uint8 *TTSAudioBuffer = (uint8*)FMRTTSLib::FMRTTSLibMain::TextToWav(*VoiceRequiredAttributes, *VoiceOptionalAttributes, Rate, *Text, &BytesRead);
+	int exitCode = -1;
+	uint8 *TTSAudioBuffer = (uint8*)FMRTTSLib::FMRTTSLibMain::TextToWav(*VoiceRequiredAttributes, *VoiceOptionalAttributes, Rate, *Text, &BytesRead, exitCode);
+
 	
 	if (TTSAudioBuffer)
 	{

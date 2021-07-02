@@ -25,7 +25,7 @@ public class BYGTextToSpeechEditor : ModuleRules
 				//"PropertyEditor",
 				//"EditorSubsystem",
 				//"EditorWidgets",
-				"DeveloperSettings",
+				//"DeveloperSettings",
 				"BYGTextToSpeech"
 				//"RenderCore",
 			}

@@ -16,5 +16,5 @@ public:
 	static bool SpeakText( const FText& Text );
 
 	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	static bool SpeakTextAll( const FText& Text, EBYGSpeakerGender Gender, const FString& Locale, int32 Rate );
+	static USoundWave* SpeakTextAll( const FText& Text, EBYGSpeakerGender Gender, const FString& Locale, int32 Rate );
 };

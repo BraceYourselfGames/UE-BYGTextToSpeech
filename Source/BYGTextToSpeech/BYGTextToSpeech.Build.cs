@@ -7,11 +7,6 @@ public class BYGTextToSpeech : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateIncludePathModuleNames.AddRange(
-			new string[] {
-			}
-		);
-
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
 				"Core",
@@ -19,30 +14,15 @@ public class BYGTextToSpeech : ModuleRules
 				"Engine",
 				"InputCore",
 				"Media",
-				//"Slate",
-				//"UnrealEd",
-                //"UMG",
 			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
 			new string[] {
-                //"SlateCore",
-                //"EditorStyle",
-                //"Projects",
-				//"PropertyEditor",
-				//"EditorSubsystem",
-				//"EditorWidgets",
-				"DeveloperSettings",
-				//"RenderCore",
+				"Slate",
+                "SlateCore",
             }
         );
-
-		DynamicallyLoadedModuleNames.AddRange(
-			new string[] {
-			}
-		);
-
 
 		// Load FMRTTSLib
 		if (Target.Platform != UnrealTargetPlatform.Win64 && Target.Platform != UnrealTargetPlatform.Win32)
