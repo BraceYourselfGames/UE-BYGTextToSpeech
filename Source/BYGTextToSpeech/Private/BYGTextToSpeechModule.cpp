@@ -9,7 +9,7 @@ void FBYGTextToSpeechModule::StartupModule()
 {
 	LastFrameNumberWeTicked = INDEX_NONE;
 
-	UBYGTextToSpeechStatics::GetAllVoiceInfo();
+	TArray<FBYGVoiceInfo> Voices = UBYGTextToSpeechStatics::GetAllVoiceInfo();
 
 	FDefaultGameModuleImpl::StartupModule();
 }

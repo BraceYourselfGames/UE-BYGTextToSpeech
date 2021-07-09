@@ -7,9 +7,10 @@
 #include "Engine/EngineTypes.h"
 #include "BYGTextToSpeechSettings.generated.h"
 
-UENUM()
+UENUM( BlueprintType )
 enum class EBYGSpeakerGender : uint8
 {
+	Undefined,
 	Masculine,
 	Feminine
 };

@@ -71,8 +71,9 @@
 #define GetMessage GetMessageW
 #endif
 
-#include "sapi.h"
-#include "sphelper.h"
+#include <atlbase.h>
+#include <sapi.h>
+#include <sphelper.h>
 
 #undef DeleteFile
 #undef MoveFile
@@ -123,11 +124,12 @@ USoundWave* UBYGTextToSpeechStatics::SpeakTextAll( const FText& Text, EBYGSpeake
 #endif
 }
 
-
-void UBYGTextToSpeechStatics::GetAllVoiceInfo()
+TArray<FBYGVoiceInfo> UBYGTextToSpeechStatics::GetAllVoiceInfo()
 {
+	TArray<FBYGVoiceInfo> Voices;
+
 	if ( FAILED( ::CoInitialize( NULL ) ) )
-		return;
+		return Voices;
 
 	HRESULT hr = S_OK;
 
@@ -135,9 +137,6 @@ void UBYGTextToSpeechStatics::GetAllVoiceInfo()
 	CComPtr<ISpStream> cpStream; //Will contain IStream
 	CComPtr<IStream> cpBaseStream; //raw data
 	ISpObjectToken* cpToken( NULL ); //Will set voice characteristics
-
-	//GUID guidFormat;
-	WAVEFORMATEX* pWavFormatEx = nullptr;
 
 	hr = cpVoice.CoCreateInstance( CLSID_SpVoice );
 
@@ -150,57 +149,79 @@ void UBYGTextToSpeechStatics::GetAllVoiceInfo()
 			CComPtr<ISpObjectToken> pSpTok;
 			while ( cpSpEnumTokens->Next( 1, &pSpTok, NULL ) == S_OK )
 			{
+				FBYGVoiceInfo VoiceInfo;
+
+				WCHAR* pID = NULL;
+				hr = pSpTok->GetId( &pID );
+				if ( SUCCEEDED( hr ) )
+				{
+					VoiceInfo.ID = FString( pID );
+				}
+
+				// Available keys: Name, Gender, Age, Language, Vendor, Version
 				CComPtr<ISpDataKey> cpSpAttributesKey;
 				if ( SUCCEEDED( hr = pSpTok->OpenKey( L"Attributes", &cpSpAttributesKey ) ) )
 				{
+					WCHAR* key2 = NULL;
+					LONG index2 = 0;
+					while ( SUCCEEDED( hr = cpSpAttributesKey->EnumValues( index2, &key2 ) ) )
+					{
+						WCHAR* pValue = NULL;
+						cpSpAttributesKey->GetStringValue( key2, &pValue );
+						index2++;
+					}
+
 					CSpDynamicString dstrName;
 					cpSpAttributesKey->GetStringValue( L"Name", &dstrName );
+					VoiceInfo.Name = FString( ( WCHAR* )dstrName );
+
 					CSpDynamicString dstrGender;
 					cpSpAttributesKey->GetStringValue( L"Gender", &dstrGender );
-					// dstrName: Microsoft David Desktop
-					// dstrGender: Male
+					FString Gender( ( WCHAR* )dstrGender );
+					if ( Gender == "Male" )
+					{
+						VoiceInfo.Gender = EBYGSpeakerGender::Masculine;
+					}
+					else if ( Gender == "Female" )
+					{
+						VoiceInfo.Gender = EBYGSpeakerGender::Feminine;
+					}
+					else
+					{
+						VoiceInfo.Gender = EBYGSpeakerGender::Undefined;
+					}
+
+					CSpDynamicString dstrAge;
+					cpSpAttributesKey->GetStringValue( L"Age", &dstrAge );
+					VoiceInfo.Age = FString( ( WCHAR* )dstrAge );
+
+					CSpDynamicString dstrVendor;
+					cpSpAttributesKey->GetStringValue( L"Vendor", &dstrVendor );
+					VoiceInfo.Vendor = FString( ( WCHAR* )dstrVendor );
+
+					CSpDynamicString dstrVersion;
+					cpSpAttributesKey->GetStringValue( L"Version", &dstrVersion );
+					VoiceInfo.Version = FString( ( WCHAR* )dstrVersion );
+
+					CSpDynamicString dstrLanguage;
+					cpSpAttributesKey->GetStringValue( L"Language", &dstrLanguage );
+					VoiceInfo.LanguageID = FString( ( WCHAR* )dstrLanguage );
+
+					// LCID is hex, but LCIDToLocaleName wants dec, because of course
+					const char* HexCode = TCHAR_TO_ANSI( dstrLanguage );
+					wchar_t wc = strtol( HexCode, NULL, 16 );
+					CSpDynamicString dstrLocaleName( 16 );
+					int result = LCIDToLocaleName( wc, dstrLocaleName, 16, 0 );
+					VoiceInfo.LocaleName = FString( ( WCHAR* )dstrLocaleName );
+
+					Voices.Add( VoiceInfo );
+
 					cpSpAttributesKey.Release();
 				}
 				pSpTok.Release();
 			}
-			#if 0
-			CComPtr<ISpObjectToken> pSpTok;
-			while ( SUCCEEDED( hr = cpSpEnumTokens->Next( 1, &pSpTok, NULL ) ) )
-			{
-				// do something with the token here; for example, set the voice
-				//pVoice->SetVoice( pSpTok, FALSE );
-				WCHAR* pID = NULL;
-				hr = pSpTok->GetId( &pID );
-				// This succeeds, pID is "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_DAVID_11.0" 
-				WCHAR* pName = NULL;
-				pSpTok->GetStringValue( L"name", &pName );
-				// pName, pGender and pLanguage are all null
-				WCHAR* pGender = NULL;
-				pSpTok->GetStringValue( L"gender", &pGender );
-				WCHAR* pLanguage = NULL;
-				pSpTok->GetStringValue( L"language", &pLanguage );
-				LONG index = 0;
-				WCHAR* key = NULL;
-				while ( SUCCEEDED( hr = pSpTok->EnumKeys( index, &key ) ) )
-				{
-					// Gets some elements
-					WCHAR* pValue = NULL;
-					pSpTok->GetStringValue( key, &pValue );
-					// Loops once, key value is "Attributes"
-					index++;
-				}
-				index = 0;
-				while ( SUCCEEDED( hr = pSpTok->EnumValues( index, &key ) ) )
-				{
-					// Loops many times, but none of these have what I need
-					WCHAR* pValue = NULL;
-					pSpTok->GetStringValue( key, &pValue );
-					index++;
-				}
-				// NOTE:  IEnumSpObjectTokens::Next will *overwrite* the pointer; must manually release
-				pSpTok.Release();
-			}
-			#endif
 		}
 	}
+
+	return Voices;
 }
