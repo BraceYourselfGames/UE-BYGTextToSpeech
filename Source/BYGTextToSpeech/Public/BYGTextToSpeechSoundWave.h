@@ -4,7 +4,7 @@
 #include "BYGTextToSpeechSoundWave.generated.h"
 
 UCLASS()
-class BYGTEXTTOSPEECH_API UBYGTextToSpeechSoundWave : public USoundWaveProcedural
+class UBYGTextToSpeechSoundWave : public USoundWaveProcedural
 {
 	GENERATED_BODY()
 public:
