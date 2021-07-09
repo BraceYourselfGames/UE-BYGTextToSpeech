@@ -6,7 +6,7 @@
 #include "Engine.h"
 #include "Tickable.h"
 
-class FBYGTextToSpeechModule : public FDefaultGameModuleImpl, public FTickableGameObject
+class FBYGTextToSpeechModule : public FDefaultGameModuleImpl, public FTickableGameObject, public FGCObject
 {
 public:
 	virtual void StartupModule() override;
@@ -31,11 +31,18 @@ public:
 		return false;
 	}
 
+	virtual void AddReferencedObjects( FReferenceCollector& Collector ) override;
+
 protected:
+	UWorld* GetWorld();
+
 	/** The last frame number we were ticked.  We don't want to tick multiple times per frame */
 	uint32 LastFrameNumberWeTicked;
 
-	TArray<FText> LastTextWeSpoke;
+	float VolumeMultiplier = 1.0f;
+
+	TArray<FString> LastTextWeSpoke;
 	TWeakPtr<SWidget> LastParentWidgetWeSpoke;
 
+	UAudioComponent* AudioComponent = nullptr;
 };

@@ -21,6 +21,7 @@ public class BYGTextToSpeech : ModuleRules
 			new string[] {
 				"Slate",
                 "SlateCore",
+                "UnrealEd",
             }
         );
 
