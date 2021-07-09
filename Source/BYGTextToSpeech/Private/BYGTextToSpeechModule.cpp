@@ -9,8 +9,6 @@ void FBYGTextToSpeechModule::StartupModule()
 {
 	LastFrameNumberWeTicked = INDEX_NONE;
 
-	TArray<FBYGVoiceInfo> Voices = UBYGTextToSpeechStatics::GetAllVoiceInfo();
-
 	FDefaultGameModuleImpl::StartupModule();
 }
 
@@ -19,7 +17,7 @@ void FBYGTextToSpeechModule::ShutdownModule()
 	FDefaultGameModuleImpl::ShutdownModule();
 }
 
-void GetChildrenAccessibleText( TSharedRef<SWidget> Owner, TArray<FText>& OutText )
+void GetChildrenAccessibleText( TSharedRef<SWidget> Owner, TArray<FString>& OutText )
 {
 	FChildren* AllChildren = Owner->GetAllChildren();
 	if ( AllChildren )
@@ -30,7 +28,7 @@ void GetChildrenAccessibleText( TSharedRef<SWidget> Owner, TArray<FText>& OutTex
 			const FText Text = Child->GetAccessibleText();
 			if ( !Text.IsEmpty() )
 			{
-				OutText.Add( Text );
+				OutText.Add( Text.ToString() );
 			}
 			GetChildrenAccessibleText( Child, OutText );
 		}
@@ -60,11 +58,20 @@ void FBYGTextToSpeechModule::Tick( float DeltaTime )
 				if ( Widget->GetTypeAsString() == RootName )
 				{
 					TSharedRef<SWidget> LeafWidget = WidgetPath.GetLastWidget();
-					TArray<FText> AllText;
+					TArray<FString> AllText;
 					GetChildrenAccessibleText( LeafWidget, AllText );
 					break;
 				}
 			}
+		}
+
+		if ( AllText != LastTextWeSpoke )
+		{
+			const FString OutString = FString::Join( AllText, TEXT( "\n" ) );
+
+			UBYGTextToSpeechStatics::SpeakText( GetWorld(), OutString );
+
+			LastTextWeSpoke = AllText;
 		}
 
 		LastFrameNumberWeTicked = GFrameCounter;

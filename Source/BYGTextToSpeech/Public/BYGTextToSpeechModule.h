@@ -34,4 +34,8 @@ public:
 protected:
 	/** The last frame number we were ticked.  We don't want to tick multiple times per frame */
 	uint32 LastFrameNumberWeTicked;
+
+	TArray<FText> LastTextWeSpoke;
+	TWeakPtr<SWidget> LastParentWidgetWeSpoke;
+
 };

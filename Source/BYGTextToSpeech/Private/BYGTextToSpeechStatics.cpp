@@ -40,32 +40,44 @@
 
 #endif
 
-USoundWave* UBYGTextToSpeechStatics::TextToWave( FString VoiceRequiredAttributes, FString VoiceOptionalAttributes, int32 Rate, FString Text )
+#include "Kismet/GameplayStatics.h"
+
+bool UBYGTextToSpeechStatics::SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, int32 Speed )
 {
-	auto TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
-	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text );
-	return TTSSoundWave;
+	USoundWave* SoundWave = TextToSoundWave( Text, Locale, Gender, Speed );
+	if ( SoundWave )
+	{
+		UGameplayStatics::PlaySound2D( WorldContextObject, SoundWave );
+		return true;
+	}
+	return false;
 }
 
-bool UBYGTextToSpeechStatics::SpeakText( const FText& Text )
-{
 
-	// Use the defaults from the module
-
-
-	return true;
-}
-
-USoundWave* UBYGTextToSpeechStatics::SpeakTextAll( const FText& Text, EBYGSpeakerGender Gender, const FString& Locale, int32 Rate )
+USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, int32 Speed )
 {
 #if PLATFORM_WINDOWS
 	//vendor=microsoft;language=409
 
-	const LCID Lcid = LocaleNameToLCID( *Locale, 0 );
 
-	const FString GenderString = Gender == EBYGSpeakerGender::Masculine ? "male" : "female";
-	const FString VoiceRequiredAttributes = FString::Printf( TEXT( "vendor=microsoft;language=%x" ), Lcid );
-	const FString VoiceOptionalAttributes = FString::Printf( TEXT( "gender=%s" ), *GenderString );
+	TArray<FString> RequiredAttributes;
+	// Convert from en-US to integer
+	const LCID Lcid = LocaleNameToLCID( *Locale, 0 );
+	// Print as hex
+	RequiredAttributes.Add( FString::Printf( TEXT( "language=%x" ), Lcid ) );
+	//RequiredAttributes.Add( FString::Printf( TEXT( "vendor=%s" ), *Vendor ) );
+
+	const FString VoiceRequiredAttributes = FString::Join( RequiredAttributes, TEXT( ";" ) );
+
+	TArray<FString> OptionalAttributes;
+	if ( Gender != EBYGSpeakerGender::Undefined )
+	{
+		const FString GenderString = Gender == EBYGSpeakerGender::Masculine ? "male" : "female";
+		OptionalAttributes.Add( FString::Printf( TEXT( "gender=%s" ), *GenderString ) );
+	}
+	const FString VoiceOptionalAttributes = FString::Join( OptionalAttributes, TEXT( ";" ) );
+
+	const int32 Rate = FMath::GetMappedRangeValueClamped( FVector2D( 0, 10 ), FVector2D( -10, 10 ), Speed );
 
 	UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
 	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text.ToString() );
@@ -76,7 +88,15 @@ USoundWave* UBYGTextToSpeechStatics::SpeakTextAll( const FText& Text, EBYGSpeake
 #endif
 }
 
-TArray<FBYGVoiceInfo> UBYGTextToSpeechStatics::GetAllVoiceInfo()
+USoundWave* UBYGTextToSpeechStatics::TextToSoundWaveAdvanced( FString VoiceRequiredAttributes, FString VoiceOptionalAttributes, int32 Rate, FString Text )
+{
+	UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
+	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text );
+	return TTSSoundWave;
+}
+
+
+TArray<FBYGVoiceInfo> UBYGTextToSpeechStatics::GetVoices()
 {
 	TArray<FBYGVoiceInfo> Voices;
 

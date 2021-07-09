@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BYGTextToSpeechSettings.h"
 #include "BYGTextToSpeechStatics.generated.h"
 
 USTRUCT( BlueprintType )
@@ -41,22 +42,47 @@ public:
 	FString LocaleName;
 };
 
-UCLASS()
+UCLASS( meta = ( ScriptName = "BYGTextToSpeechStatics" ) )
 class BYGTEXTTOSPEECH_API UBYGTextToSpeechStatics : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	static USoundWave* TextToWave( FString VoiceRequiredAttributes = "vendor=microsoft;language=409", FString VoiceOptionalAttributes = "", int32 Rate = 0, FString Text = "test" );
-
 	// Use module defaults
-	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	static bool SpeakText( const FText& Text );
+	//UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
+	//static bool SpeakText( const FText& Text );
 
-	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	static USoundWave* SpeakTextAll( const FText& Text, EBYGSpeakerGender Gender, const FString& Locale, int32 Rate );
+	// 
+	/** 
+	 * Speak the text using a 2D listener
+	 * @return Whether the text was successfully spoken or not
+	 */
+	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech", meta = ( WorldContext = "WorldContextObject", AdvancedDisplay = 1, UnsafeDuringActorConstruction = "true" ) )
+	static bool SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, int32 Speed = 5 );
 
+	/** 
+	 * Creates and returns a Sound Wave containing the spoken text
+	 * @param Text - The text to be spoken
+	 * @param Locale - If the locale is not found, the voice will not play
+	 * @param Gender - Request that the voice is masculine, feminine or do not specify
+	 * @param Speed - An integer that controls how fast the voice speaks. 5 is "normal", can accept 0~10 inclusive
+	 * @return A USoundWave containing the speech data
+	 */
+	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech", meta = ( AdvancedDisplay = 1 ) )
+	static USoundWave* TextToSoundWave( const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, int32 Speed = 5);
+
+	// This is a more raw version of the text to wave
+	/** 
+	 * This is a more raw version of the text to wave
+	 * @return An array of Voice Info structs
+	 */
 	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	static TArray<FBYGVoiceInfo> GetAllVoiceInfo();
+	static USoundWave* TextToSoundWaveAdvanced( FString VoiceRequiredAttributes = "vendor=microsoft;language=409", FString VoiceOptionalAttributes = "", int32 Rate = 0, FString Text = "test" );
+
+	/** 
+	 * Returns a list of all the voices that are installed on the machine
+	 * @return An array of Voice Info structs
+	 */
+	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
+	static TArray<FBYGVoiceInfo> GetVoices();
 };
