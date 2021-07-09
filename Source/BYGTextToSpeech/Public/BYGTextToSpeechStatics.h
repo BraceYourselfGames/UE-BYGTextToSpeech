@@ -12,7 +12,7 @@ public:
 	UPROPERTY( BlueprintReadOnly )
 	FString ID;
 
-	// e.g. 
+	// Human-readable voice name e.g. Microsoft David Desktop
 	UPROPERTY( BlueprintReadOnly )
 	FString Name;
 
@@ -32,9 +32,11 @@ public:
 	UPROPERTY( BlueprintReadOnly )
 	FString Version;
 
-	// This is a Windows Language ID (LCID) in hex, e.g. 809 for English
+	// This is a Windows Language ID (LCID) in hex, e.g. 409 for US English
 	UPROPERTY( BlueprintReadOnly )
 	FString LanguageID;
+
+	// 2 or 5-character locale code e.g. en-US, fr-FR
 	UPROPERTY( BlueprintReadOnly )
 	FString LocaleName;
 };
