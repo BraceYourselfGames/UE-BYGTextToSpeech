@@ -1,8 +1,8 @@
 #include "BYGTextToSpeechSoundWave.h"
-#include "FMRTTSLib.h"
 
 bool UBYGTextToSpeechSoundWave::Initialize(const FString &VoiceRequiredAttributes, const FString &VoiceOptionalAttributes, int32 Rate, const FString &Text)
 {
+#if 0
 	unsigned long BytesRead;
 	int exitCode = -1;
 	uint8 *TTSAudioBuffer = (uint8*)FMRTTSLib::FMRTTSLibMain::TextToWav(*VoiceRequiredAttributes, *VoiceOptionalAttributes, Rate, *Text, &BytesRead, exitCode);
@@ -28,5 +28,6 @@ bool UBYGTextToSpeechSoundWave::Initialize(const FString &VoiceRequiredAttribute
 		UE_LOG(LogTemp, Error, TEXT("Can't generate wave from speech (may be voice not found, check VoiceRequiredAttributes)."));
 	}
 
+	#endif
 	return true;
 }

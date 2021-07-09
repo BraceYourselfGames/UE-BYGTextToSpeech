@@ -1,52 +1,6 @@
 #include "BYGTextToSpeechStatics.h"
 #include "BYGTextToSpeechSoundWave.h"
 #if PLATFORM_WINDOWS
-//#include "Windows/MinWindows.h"
-
-#if 0
-
-#include "CoreTypes.h"
-#include "HAL/PlatformMemory.h"
-#include "Windows/PreWindowsApi.h"
-#ifndef STRICT
-#define STRICT
-#endif
-#include "Windows/MinWindows.h"
-#include "Windows/AllowWindowsPlatformTypes.h"
-#include "Windows/AllowWindowsPlatformAtomics.h"
-
-#pragma warning(push)
-#pragma warning(disable: 4191) // warning C4191: 'type cast' : unsafe conversion
-#pragma warning(disable: 4996) // error C4996: 'GetVersionEx': was declared deprecated
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-// atltransactionmanager.h doesn't use the W equivalent functions, use this workaround
-#ifndef DeleteFile
-#define DeleteFile DeleteFileW
-#endif
-#ifndef MoveFile
-#define MoveFile MoveFileW
-#endif
-
-#include <atlbase.h>
-#include <winnls.h>
-#include <sapi.h>
-
-#undef DeleteFile
-#undef MoveFile
-
-#include <sphelper.h>
-
-#pragma warning(pop)
-
-
-#include "Windows/HideWindowsPlatformAtomics.h"
-#include "Windows/HideWindowsPlatformTypes.h"
-#include "Windows/PostWindowsApi.h"
-
-#else
 
 #include "Windows/AllowWindowsPlatformTypes.h"
 #pragma warning(push)
@@ -83,8 +37,6 @@
 #undef GetMessage
 #pragma warning(pop)
 #include "Windows/HideWindowsPlatformTypes.h"
-
-#endif
 
 #endif
 
