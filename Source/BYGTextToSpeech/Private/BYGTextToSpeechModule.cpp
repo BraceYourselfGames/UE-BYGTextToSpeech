@@ -1,12 +1,15 @@
 // Copyright Brace Yourself Games. All Rights Reserved.
 
 #include "BYGTextToSpeechModule.h"
+#include "BYGTextToSpeechStatics.h"
 
 #define LOCTEXT_NAMESPACE "BYGTextToSpeechModule"
 
 void FBYGTextToSpeechModule::StartupModule()
 {
 	LastFrameNumberWeTicked = INDEX_NONE;
+
+	UBYGTextToSpeechStatics::GetAllVoiceInfo();
 
 	FDefaultGameModuleImpl::StartupModule();
 }
