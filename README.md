@@ -1,5 +1,14 @@
-# BYG Text to Speech Coverage
+# BYG Text to Speech
 
+A plugin for Unreal Engine 4 that supports text-to-speech on Windows.
+
+
+## Features
+
+* Blueprint functions for creating USoundWave instances from text.
+* List all installed voices.
+* Automatically read text under the cursor using `GetAccessibleText()`
+* 
 
 ## Compilation
 
