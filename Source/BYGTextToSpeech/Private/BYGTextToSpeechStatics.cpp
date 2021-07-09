@@ -123,11 +123,11 @@ TArray<FBYGVoiceInfo> UBYGTextToSpeechStatics::GetVoices()
 			{
 				FBYGVoiceInfo VoiceInfo;
 
-				WCHAR* pID = NULL;
-				hr = pSpTok->GetId( &pID );
+				WCHAR* pId = NULL;
+				hr = pSpTok->GetId( &pId );
 				if ( SUCCEEDED( hr ) )
 				{
-					VoiceInfo.ID = FString( pID );
+					VoiceInfo.Id = FString( pId );
 				}
 
 				// Available keys: Name, Gender, Age, Language, Vendor, Version

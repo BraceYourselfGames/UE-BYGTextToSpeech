@@ -11,7 +11,7 @@ struct BYGTEXTTOSPEECH_API FBYGVoiceInfo
 public:
 	// e.g. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_DAVID_11.0" 
 	UPROPERTY( BlueprintReadOnly )
-	FString ID;
+	FString Id;
 
 	// Human-readable voice name e.g. Microsoft David Desktop
 	UPROPERTY( BlueprintReadOnly )
