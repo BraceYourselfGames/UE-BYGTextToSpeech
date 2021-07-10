@@ -3,6 +3,12 @@
 #include "BYGTextToSpeechModule.h"
 #include "BYGTextToSpeechStatics.h"
 #include "AudioDevice.h"
+#include "Kismet/GameplayStatics.h"
+
+#if WITH_EDITOR
+#include "Editor/EditorEngine.h"
+#endif
+
 
 #define LOCTEXT_NAMESPACE "BYGTextToSpeechModule"
 

@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "UnrealEd.h"
-#include "Engine.h"
+#include "Modules/ModuleManager.h"
 #include "Tickable.h"
+#include "UObject/GCObject.h"
 
 class BYGTEXTTOSPEECH_API FBYGTextToSpeechModule : public FDefaultGameModuleImpl, public FTickableGameObject, public FGCObject
 {

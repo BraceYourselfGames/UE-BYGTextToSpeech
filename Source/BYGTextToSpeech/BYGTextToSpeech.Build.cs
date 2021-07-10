@@ -21,9 +21,13 @@ public class BYGTextToSpeech : ModuleRules
 			new string[] {
 				"Slate",
                 "SlateCore",
-                "UnrealEd",
             }
         );
+
+		if ( Target.bBuildEditor == true )
+		{
+			PrivateDependencyModuleNames.Add( "UnrealEd" );
+		}
 
 		// Load atls.lib
 		if (Target.Platform != UnrealTargetPlatform.Win64 && Target.Platform != UnrealTargetPlatform.Win32)
