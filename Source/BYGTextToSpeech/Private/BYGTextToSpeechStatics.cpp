@@ -42,7 +42,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
-bool UBYGTextToSpeechStatics::SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, int32 Speed )
+bool UBYGTextToSpeechStatics::SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, float Speed )
 {
 	USoundWave* SoundWave = TextToSoundWave( Text, Locale, Gender, Speed );
 	if ( SoundWave )
@@ -54,7 +54,7 @@ bool UBYGTextToSpeechStatics::SpeakText( const UObject* WorldContextObject, cons
 }
 
 
-USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, int32 Speed )
+USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, float Speed )
 {
 #if PLATFORM_WINDOWS
 	//vendor=microsoft;language=409
@@ -77,7 +77,7 @@ USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const F
 	}
 	const FString VoiceOptionalAttributes = FString::Join( OptionalAttributes, TEXT( ";" ) );
 
-	const int32 Rate = FMath::GetMappedRangeValueClamped( FVector2D( 0, 10 ), FVector2D( -10, 10 ), Speed );
+	const int32 Rate = FMath::GetMappedRangeValueClamped( FVector2D( 0.0f, 1.0f ), FVector2D( -10, 10 ), Speed );
 
 	UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
 	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text.ToString() );

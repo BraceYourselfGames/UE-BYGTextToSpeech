@@ -48,28 +48,27 @@ class BYGTEXTTOSPEECH_API UBYGTextToSpeechStatics : public UBlueprintFunctionLib
 	GENERATED_BODY()
 
 public:
-	// Use module defaults
-	//UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	//static bool SpeakText( const FText& Text );
-
-	// 
 	/** 
-	 * Speak the text using a 2D listener
+	 * Speak the text using a 2D listener. Calls UGameplayStatics::PlaySound2D
+	 * @param Text - The text to be spoken
+	 * @param Locale - If the locale is not found, the voice will not play
+	 * @param Gender - Request that the voice is masculine, feminine or do not specify
+	 * @param Speed - An float that controls how fast the voice speaks. 0.5 is "normal", can accept 0~1 inclusive
 	 * @return Whether the text was successfully spoken or not
 	 */
 	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech", meta = ( WorldContext = "WorldContextObject", AdvancedDisplay = 1, UnsafeDuringActorConstruction = "true" ) )
-	static bool SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, int32 Speed = 5 );
+	static bool SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, float Speed = 0.5f );
 
 	/** 
 	 * Creates and returns a Sound Wave containing the spoken text
 	 * @param Text - The text to be spoken
 	 * @param Locale - If the locale is not found, the voice will not play
 	 * @param Gender - Request that the voice is masculine, feminine or do not specify
-	 * @param Speed - An integer that controls how fast the voice speaks. 5 is "normal", can accept 0~10 inclusive
+	 * @param Speed - An float that controls how fast the voice speaks. 0.5 is "normal", can accept 0~1 inclusive
 	 * @return A USoundWave containing the speech data
 	 */
 	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech", meta = ( AdvancedDisplay = 1 ) )
-	static USoundWave* TextToSoundWave( const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, int32 Speed = 5);
+	static USoundWave* TextToSoundWave( const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, float Speed = 0.5f);
 
 	// This is a more raw version of the text to wave
 	/** 
