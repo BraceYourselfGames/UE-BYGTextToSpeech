@@ -3,6 +3,7 @@
 #if PLATFORM_WINDOWS
 
 #include "Windows/AllowWindowsPlatformTypes.h"
+#include "Windows/AllowWindowsPlatformAtomics.h"
 #pragma warning(push)
 #pragma warning(disable: 4191)
 #pragma warning(disable: 4996)
@@ -15,12 +16,6 @@
 #ifndef LoadString
 #define LoadString LoadStringW
 #endif
-#ifndef InterlockedDecrement
-#define InterlockedDecrement _InterlockedDecrement
-#endif
-#ifndef InterlockedIncrement
-#define InterlockedIncrement _InterlockedIncrement
-#endif
 #ifndef GetMessage
 #define GetMessage GetMessageW
 #endif
@@ -32,10 +27,9 @@
 #undef DeleteFile
 #undef MoveFile
 #undef LoadString
-#undef InterlockedDecrement
-#undef InterlockedIncrement
 #undef GetMessage
 #pragma warning(pop)
+#include "Windows/HideWindowsPlatformAtomics.h"
 #include "Windows/HideWindowsPlatformTypes.h"
 
 #endif
