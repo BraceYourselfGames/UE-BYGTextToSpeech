@@ -5,6 +5,7 @@
 #include "Modules/ModuleManager.h"
 #include "Tickable.h"
 #include "UObject/GCObject.h"
+#include "Widgets/SWidget.h"
 
 class BYGTEXTTOSPEECH_API FBYGTextToSpeechModule : public FDefaultGameModuleImpl, public FTickableGameObject, public FGCObject
 {
@@ -33,10 +34,15 @@ public:
 
 	virtual void AddReferencedObjects( FReferenceCollector& Collector ) override;
 
+	// If the user wants to re-trigger audio being read
+	void ReadTextUnderCursor();
+	void StopAudio();
+
+	// Disabling will stop any audio
 	void SetIsEnabled( bool bInIsEnabled );
 	void SetAutoReadOnHoverEnabled( bool bInAutoRead ) { bAutoReadOnHover = bInAutoRead; }
 	void SetVolumeMultiplier( float InVolumeMultiplier ) { VolumeMultiplier = InVolumeMultiplier; }
-	void SetVoiceId( const FString& InVoiceId );
+	bool SetVoiceId( const FString& InVoiceId );
 	void SetSpeed( float InSpeed )
 	{
 		Speed = FMath::Clamp<float>( InSpeed, 0.0f, 1.0f );
@@ -50,17 +56,15 @@ protected:
 	/** The last frame number we were ticked.  We don't want to tick multiple times per frame */
 	uint32 LastFrameNumberWeTicked;
 
+	// We're assuming that the installed voice name is unique
 	FString VoiceName;
-	FString VoiceVendor;
-	FString VoiceGender;
 
 	bool bAutoReadOnHover = true;
 	float VolumeMultiplier = 1.0f;
 	float Speed = 0.5f;
-	FString Locale = "en-US";
 
 	TArray<FString> LastTextWeSpoke;
 	TWeakPtr<SWidget> LastParentWidgetWeSpoke;
 
-	UAudioComponent* AudioComponent = nullptr;
+	class UAudioComponent* AudioComponent = nullptr;
 };

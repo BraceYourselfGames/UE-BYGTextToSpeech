@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BYGTextToSpeechSettings.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "BYGTextToSpeechStatics.generated.h"
 
 USTRUCT( BlueprintType )

@@ -4,6 +4,7 @@
 #include "BYGTextToSpeechStatics.h"
 #include "AudioDevice.h"
 #include "Kismet/GameplayStatics.h"
+#include "Framework/Application/SlateApplication.h"
 
 #if WITH_EDITOR
 #include "Editor/EditorEngine.h"
@@ -129,8 +130,8 @@ void FBYGTextToSpeechModule::Tick( float DeltaTime )
 					{
 						TArray<FString> RequiredAttributes;
 						RequiredAttributes.Add( FString::Printf( TEXT( "name=%s" ), *VoiceName ) );
-						RequiredAttributes.Add( FString::Printf( TEXT( "vendor=%s" ), *VoiceVendor ) );
-						RequiredAttributes.Add( FString::Printf( TEXT( "gender=%s" ), *VoiceGender ) );
+						//RequiredAttributes.Add( FString::Printf( TEXT( "vendor=%s" ), *VoiceVendor ) );
+						//RequiredAttributes.Add( FString::Printf( TEXT( "gender=%s" ), *VoiceGender ) );
 						const int32 Rate = FMath::GetMappedRangeValueClamped( FVector2D( 0.0f, 1.0f ), FVector2D( -10, 10 ), Speed );
 						const FString Attributes = FString::Join( RequiredAttributes, TEXT( ";" ) );
 						USoundWave* SoundWave = UBYGTextToSpeechStatics::TextToSoundWaveAdvanced(
@@ -178,7 +179,7 @@ void FBYGTextToSpeechModule::Tick( float DeltaTime )
 	}
 }
 
-void FBYGTextToSpeechModule::SetVoiceId( const FString& InVoiceId )
+bool FBYGTextToSpeechModule::SetVoiceId( const FString& InVoiceId )
 {
 	TArray<FBYGVoiceInfo> Voices = UBYGTextToSpeechStatics::GetVoices();
 	FBYGVoiceInfo* FoundInfo = Voices.FindByPredicate( [InVoiceId]( const FBYGVoiceInfo& Voice )
@@ -188,8 +189,21 @@ void FBYGTextToSpeechModule::SetVoiceId( const FString& InVoiceId )
 	if ( FoundInfo )
 	{
 		VoiceName = FoundInfo->Name;
-		VoiceVendor = FoundInfo->Vendor;
-		VoiceGender = FoundInfo->Gender == EBYGSpeakerGender::Masculine ? "male" : "female";
+		return true;
+	}
+	return false;
+}
+
+void FBYGTextToSpeechModule::ReadTextUnderCursor()
+{
+
+}
+
+void FBYGTextToSpeechModule::StopAudio()
+{
+	if ( AudioComponent )
+	{
+		AudioComponent->Stop();
 	}
 }
 
