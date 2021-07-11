@@ -30,14 +30,18 @@ public class BYGTextToSpeech : ModuleRules
 		}
 
 		// Load atls.lib
-		if (Target.Platform != UnrealTargetPlatform.Win64 && Target.Platform != UnrealTargetPlatform.Win32)
+		if ( Target.Platform != UnrealTargetPlatform.Win64
+#if !UE_5_0_OR_LATER
+			&& Target.Platform != UnrealTargetPlatform.Win32
+#endif
+			)
 		{
-			PublicDefinitions.Add("WITH_ATLSLIB=0");
+			PublicDefinitions.Add( "WITH_ATLSLIB=0" );
 		}
 		else
 		{
-			var LibFolder = Path.Combine(ModuleDirectory, @"..\..\ThirdParty\atlmfc\lib\");
-			var LibraryPath = Path.Combine(LibFolder, Target.Platform == UnrealTargetPlatform.Win64 ? "x64" : "x86");
+			var LibFolder = Path.Combine( ModuleDirectory, @"..\..\ThirdParty\atlmfc\lib\" );
+			var LibraryPath = Path.Combine( LibFolder, Target.Platform == UnrealTargetPlatform.Win64 ? "x64" : "x86" );
 
 			PublicSystemLibraryPaths.Add( LibraryPath );
 			PublicAdditionalLibraries.Add( Path.Combine( LibraryPath, @"atls.lib" ) );
@@ -46,7 +50,7 @@ public class BYGTextToSpeech : ModuleRules
 			//PrivateIncludePaths.Add( @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30037\atlmfc\include" );
 			PrivateIncludePaths.Add( Path.Combine( ModuleDirectory, @"..\..\ThirdParty\atlmfc\include" ) );
 
-			PublicDefinitions.Add("WITH_ATLSLIB=1");
+			PublicDefinitions.Add( "WITH_ATLSLIB=1" );
 		}
 	}
 }
