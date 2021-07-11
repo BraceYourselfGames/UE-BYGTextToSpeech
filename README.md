@@ -33,6 +33,7 @@ Windows SAPI.
 ## Unreal Version Support
 
 * Checked with 4.25 and 4.26
+* Compiles from 4.25 to 5.0EA but not tested, sorry!
 
 
 ## License
