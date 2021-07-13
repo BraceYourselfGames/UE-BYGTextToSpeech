@@ -24,11 +24,6 @@ public class BYGTextToSpeech : ModuleRules
             }
         );
 
-		if ( Target.bBuildEditor == true )
-		{
-			PrivateDependencyModuleNames.Add( "UnrealEd" );
-		}
-
 		// Load atls.lib
 		if ( Target.Platform != UnrealTargetPlatform.Win64
 #if !UE_5_0_OR_LATER
