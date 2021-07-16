@@ -7,14 +7,13 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "Engine/EngineBaseTypes.h"
 #include "Widgets/SWidget.h"
-//#include "Tickable.h"
-//#include "UObject/GCObject.h"
-#include "BYGTextToSpeechWorldSubsystem.generated.h"
+#include "BYGTextToSpeechSubsystem.generated.h"
 
+// Copied from landscape subsystem
 struct FBYGTextToSpeechSubsystemTickFunction : public FTickFunction
 {
 	FBYGTextToSpeechSubsystemTickFunction() : FBYGTextToSpeechSubsystemTickFunction( nullptr ) {}
-	FBYGTextToSpeechSubsystemTickFunction( class UBYGTextToSpeechWorldSubsystem* InSubsystem ) : Subsystem( InSubsystem ) {}
+	FBYGTextToSpeechSubsystemTickFunction( class UBYGTextToSpeechSubsystem* InSubsystem ) : Subsystem( InSubsystem ) {}
 	virtual ~FBYGTextToSpeechSubsystemTickFunction() {}
 
 	// Begin FTickFunction overrides
@@ -23,56 +22,30 @@ struct FBYGTextToSpeechSubsystemTickFunction : public FTickFunction
 	virtual FName DiagnosticContext( bool bDetailed ) override;
 	// End FTickFunction overrides
 
-	class UBYGTextToSpeechWorldSubsystem* Subsystem;
+	class UBYGTextToSpeechSubsystem* Subsystem;
 };
 
 UCLASS()
-class BYGTEXTTOSPEECH_API UBYGTextToSpeechWorldSubsystem : public UWorldSubsystem, public FTickFunction //public FTickableGameObject //, public FGCObject
+class BYGTEXTTOSPEECH_API UBYGTextToSpeechSubsystem : public UWorldSubsystem, public FTickFunction //public FTickableGameObject //, public FGCObject
 {
 	GENERATED_BODY()
 
 public:
-	UBYGTextToSpeechWorldSubsystem();
-	virtual ~UBYGTextToSpeechWorldSubsystem();
+	UBYGTextToSpeechSubsystem();
+	virtual ~UBYGTextToSpeechSubsystem();
 
 	// Begin USubsystem
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	// End USubsystem
 
-	// Begin FTickableGameObject
-	#if 0
-	virtual void Tick( float DeltaTime ) override;
-	virtual ETickableTickType GetTickableTickType() const override
-	{
-		return ETickableTickType::Always;
-	}
-	virtual TStatId GetStatId() const override
-	{
-		RETURN_QUICK_DECLARE_CYCLE_STAT( UBUITween, STATGROUP_Tickables );
-	}
-	virtual bool IsTickableWhenPaused() const
-	{
-		return true;
-	}
-	virtual bool IsTickableInEditor() const
-	{
-		return false;
-	}
-	// End FTickableGameObject
-	#endif
-
-	// Begin FGCObject
-	//virtual void AddReferencedObjects( FReferenceCollector& Collector ) override;
-	// End FGCObject
-
-
-	// If the user wants to re-trigger audio being read
+	// Call this to re-trigger audio being read
 	void ReadTextUnderCursor();
 	void StopAudio();
 
 	// Disabling will stop any audio
 	void SetIsEnabled( bool bInIsEnabled );
+
 	void SetAutoReadOnHoverEnabled( bool bInAutoRead ) { bAutoReadOnHover = bInAutoRead; }
 	void SetVolumeMultiplier( float InVolumeMultiplier ) { VolumeMultiplier = InVolumeMultiplier; }
 	bool SetVoiceId( const FString& InVoiceId );
