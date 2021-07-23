@@ -36,6 +36,8 @@
 
 char* TextToWavInner( const wchar_t* voiceRequiredAttributes, const wchar_t* voiceOptionalAttributes, long rate, const wchar_t* textToRender, ULONG* pBytesRead )
 {
+	QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner );
+
 	HRESULT hr;
 	CComPtr<ISpVoice> cpVoice; //Will send data to ISpStream
 	CComPtr<ISpStream> cpStream; //Will contain IStream
@@ -107,6 +109,8 @@ char* TextToWavInner( const wchar_t* voiceRequiredAttributes, const wchar_t* voi
 
 bool UBYGTextToSpeechSoundWave::Initialize(const FString &VoiceRequiredAttributes, const FString &VoiceOptionalAttributes, int32 Rate, const FString &Text)
 {
+	QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInitialize );
+
 	if ( Text.IsEmpty() )
 		return false;
 

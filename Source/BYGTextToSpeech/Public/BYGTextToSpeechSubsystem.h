@@ -7,6 +7,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "Engine/EngineBaseTypes.h"
 #include "Widgets/SWidget.h"
+#include "BYGTextToSpeech/Private/BYGTextToSpeechRunnable.h"
 #include "BYGTextToSpeechSubsystem.generated.h"
 
 // Copied from landscape subsystem
@@ -35,6 +36,7 @@ public:
 	virtual ~UBYGTextToSpeechSubsystem();
 
 	// Begin USubsystem
+	virtual bool ShouldCreateSubsystem( UObject* Outer ) const override;
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	// End USubsystem
@@ -44,11 +46,18 @@ public:
 	void StopAudio();
 
 	// Disabling will stop any audio
+	bool GetIsEnabled() const { return bIsEnabled; }
 	void SetIsEnabled( bool bInIsEnabled );
 
+	bool GetIsAutoReadOnHoverEnabled() const { return bAutoReadOnHover; }
 	void SetAutoReadOnHoverEnabled( bool bInAutoRead ) { bAutoReadOnHover = bInAutoRead; }
+
+	float GetVolumeMultiplier() const { return VolumeMultiplier; }
 	void SetVolumeMultiplier( float InVolumeMultiplier ) { VolumeMultiplier = InVolumeMultiplier; }
+
 	bool SetVoiceId( const FString& InVoiceId );
+
+	float GetSpeed() const { return Speed; }
 	void SetSpeed( float InSpeed )
 	{
 		Speed = FMath::Clamp<float>( InSpeed, 0.0f, 1.0f );
@@ -56,6 +65,17 @@ public:
 
 protected:
 	void Tick( float DeltaTime, enum ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent );
+	void SpeakText( const TArray<FString>& Text );
+
+	UPROPERTY()
+		TArray<USoundWave*> SoundWaveQueue;
+
+	UFUNCTION()
+		void OnAudioFinishedDynamic();
+	UFUNCTION()
+		void OnAudioFinished( UAudioComponent* AudioComp );
+
+	bool bIsAudioFinished = false;
 
 	friend struct FBYGTextToSpeechSubsystemTickFunction;
 	FBYGTextToSpeechSubsystemTickFunction TickFunction;
@@ -65,6 +85,9 @@ protected:
 
 	bool bIsEnabled = true;
 
+	bool bSplitByNewline = true;
+	bool bSplitBySentence = true;
+
 	// We're assuming that the installed voice name is unique
 	FString VoiceName;
 
@@ -72,10 +95,14 @@ protected:
 	float VolumeMultiplier = 1.0f;
 	float Speed = 0.5f;
 
+	TArray<FString> TextQueue;
+
 	TArray<FString> LastTextWeSpoke;
 	TWeakPtr<SWidget> LastParentWidgetWeSpoke;
 
 	class UAudioComponent* AudioComponent = nullptr;
+
+	TUniquePtr<FBYGTextToSpeechRunnable> TextToSpeechRunnable;
 };
 
 
