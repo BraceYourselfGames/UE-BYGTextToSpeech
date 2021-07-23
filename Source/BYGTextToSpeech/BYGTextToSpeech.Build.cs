@@ -5,7 +5,7 @@ public class BYGTextToSpeech : ModuleRules
 {
 	public BYGTextToSpeech(ReadOnlyTargetRules Target) : base(Target)
 	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+		PCHUsage = PCHUsageMode.NoSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(
 			new string[] {
