@@ -70,6 +70,7 @@ void UBYGTextToSpeechSubsystem::Tick( float DeltaTime, enum ELevelTick TickType,
 			}
 			else
 			{
+				QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeechSubsystemTick_IfIsEnabled );
 				// Find the widget that we are over, and any text widgets that beneath it
 				const FVector2D CursorPos = FSlateApplication::Get().GetCursorPos();
 				const FWidgetPath WidgetPath = FSlateApplication::Get().LocateWindowUnderMouse( CursorPos, FSlateApplication::Get().GetInteractiveTopLevelWindows() );
@@ -80,6 +81,7 @@ void UBYGTextToSpeechSubsystem::Tick( float DeltaTime, enum ELevelTick TickType,
 				TArray<FString> AllText;
 				if ( WidgetPath.IsValid() )
 				{
+					QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeechSubsystemTick_AllText );
 					FString Indent = "";
 					for ( int32 i = 0; i < WidgetPath.Widgets.Num(); ++i )
 					{
@@ -95,7 +97,10 @@ void UBYGTextToSpeechSubsystem::Tick( float DeltaTime, enum ELevelTick TickType,
 							GEngine->AddOnScreenDebugMessage( -1, 0, FColor::Green, "FOUND!" );
 							TSharedRef<SWidget> LeafWidget = WidgetPath.GetLastWidget();
 							const FText Text = LeafWidget->GetAccessibleText( EAccessibleType::Summary );
-							AllText.Add( Text.ToString() );
+							if ( !Text.IsEmptyOrWhitespace() )
+							{
+								AllText.Add( Text.ToString() );
+							}
 							//GetChildrenAccessibleText( LeafWidget, AllText );
 							break;
 						}
@@ -110,6 +115,7 @@ void UBYGTextToSpeechSubsystem::Tick( float DeltaTime, enum ELevelTick TickType,
 					if ( AllText.Num() > 0 )
 					{
 						// TODO split by sentence etc.
+						QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeechSubsystemTick_SpeakText );
 						SpeakText( AllText );
 					}
 					LastTextWeSpoke = AllText;
@@ -118,6 +124,7 @@ void UBYGTextToSpeechSubsystem::Tick( float DeltaTime, enum ELevelTick TickType,
 		}
 
 		// check if we have any stuff queued
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeechSubsystemTick_GetAndClear );
 		TArray<USoundWave*> NewSoundWaves = TextToSpeechRunnable->GetAndClearSoundWaves();
 		SoundWaveQueue.Append( NewSoundWaves );
 		const FString DebugStr = FString::Printf( TEXT( "Sound wave queue: %d" ), SoundWaveQueue.Num() );
@@ -125,6 +132,7 @@ void UBYGTextToSpeechSubsystem::Tick( float DeltaTime, enum ELevelTick TickType,
 
 		if ( SoundWaveQueue.Num() > 0 )
 		{
+			QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeechSubsystemTick_PlayAudio );
 			// Wait until the current one is done
 			if ( !AudioComponent  )
 			{
@@ -194,9 +202,11 @@ void UBYGTextToSpeechSubsystem::SpeakText( const TArray<FString>& Text )
 	}
 	// New text, so clear the queue
 	SoundWaveQueue.Empty();
+	// kill the runnable...?
+	TextToSpeechRunnable = MakeUnique<FBYGTextToSpeechRunnable>();
 	TextToSpeechRunnable->SetRate( Rate );
 	TextToSpeechRunnable->SetAttributes( Attributes );
-	TextToSpeechRunnable->ClearQueue();
+	//TextToSpeechRunnable->ClearQueue();
 	TextToSpeechRunnable->AddText( Text );
 #if 0
 if ( !AudioComponent )

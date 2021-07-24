@@ -41,13 +41,11 @@ protected:
 
 	bool bRunning = false;
 
-	bool bStopThread = false;
-	bool bIsComplete = false;
-
 	FString Attributes = "";
 	int32 Rate = 0;
 
 	class FRunnableThread* Thread = nullptr;
 
 	mutable FCriticalSection TextCriticalSection;
+	mutable FCriticalSection SoundCriticalSection;
 };

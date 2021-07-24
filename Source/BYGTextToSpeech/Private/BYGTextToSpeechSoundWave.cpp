@@ -47,64 +47,100 @@ char* TextToWavInner( const wchar_t* voiceRequiredAttributes, const wchar_t* voi
 	GUID guidFormat;
 	WAVEFORMATEX* pWavFormatEx = nullptr;
 
-	hr = cpVoice.CoCreateInstance( CLSID_SpVoice );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_CreateVoiceInstance );
+		hr = cpVoice.CoCreateInstance( CLSID_SpVoice );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	hr = SpFindBestToken( SPCAT_VOICES, voiceRequiredAttributes, voiceOptionalAttributes, &cpToken );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_FindToken );
+		hr = SpFindBestToken( SPCAT_VOICES, voiceRequiredAttributes, voiceOptionalAttributes, &cpToken );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	hr = cpVoice->SetVoice( cpToken );
-	cpToken->Release();
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_SetVoice );
+		hr = cpVoice->SetVoice( cpToken );
+		cpToken->Release();
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
 	cpVoice->SetRate( rate );
 
-	hr = cpStream.CoCreateInstance( CLSID_SpStream );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_CreateStreamInstance );
+		hr = cpStream.CoCreateInstance( CLSID_SpStream );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	hr = CreateStreamOnHGlobal( NULL, true, &cpBaseStream );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_CreateStream );
+		hr = CreateStreamOnHGlobal( NULL, true, &cpBaseStream );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	hr = SpConvertStreamFormatEnum( SPSF_44kHz16BitMono, &guidFormat, &pWavFormatEx );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_ConvertStream );
+		hr = SpConvertStreamFormatEnum( SPSF_44kHz16BitMono, &guidFormat, &pWavFormatEx );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	hr = cpStream->SetBaseStream( cpBaseStream, guidFormat, pWavFormatEx );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_SetBaseStream );
+		hr = cpStream->SetBaseStream( cpBaseStream, guidFormat, pWavFormatEx );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	hr = cpVoice->SetOutput( cpStream, false );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_SetOutput );
+		hr = cpVoice->SetOutput( cpStream, false );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	SpeechVoiceSpeakFlags voiceFlags = SpeechVoiceSpeakFlags::SVSFDefault;
-	hr = cpVoice->Speak( textToRender, voiceFlags, NULL );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_Speak );
+		// This is the slow bit
+		//SpeechVoiceSpeakFlags voiceFlags = SpeechVoiceSpeakFlags::SVSFDefault;
+		SpeechVoiceSpeakFlags voiceFlags = ( SpeechVoiceSpeakFlags ) ( SpeechVoiceSpeakFlags::SVSFlagsAsync | SpeechVoiceSpeakFlags::SVSFPurgeBeforeSpeak );
+		hr = cpVoice->Speak( textToRender, voiceFlags, NULL );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
 	// Uncomment below to directly output speech
 	//cpVoice->SetOutput(NULL, FALSE);
 	//cpVoice->SpeakStream(cpStream, SPF_DEFAULT, NULL);
 
-	LARGE_INTEGER a = { 0 };
-	hr = cpStream->Seek( a, STREAM_SEEK_SET, NULL );
-	if ( FAILED( hr ) )
-		return NULL;
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_Seek );
+		LARGE_INTEGER a = { 0 };
+		hr = cpStream->Seek( a, STREAM_SEEK_SET, NULL );
+		if ( FAILED( hr ) )
+			return NULL;
+	}
 
-	STATSTG stats;
-	cpStream->Stat( &stats, STATFLAG_NONAME );
+	{
+		QUICK_SCOPE_CYCLE_COUNTER( STAT_BYGTextToSpeech_SoundWaveInner_Read );
+		STATSTG stats;
+		cpStream->Stat( &stats, STATFLAG_NONAME );
 
-	ULONG sSize = stats.cbSize.LowPart;
+		ULONG sSize = stats.cbSize.LowPart;
 
-	char* pBuffer = new char[ sSize ];
-	cpStream->Read( pBuffer, sSize, pBytesRead );
+		char* pBuffer = new char[ sSize ];
+		cpStream->Read( pBuffer, sSize, pBytesRead );
+		return pBuffer;
+	}
 
-	return pBuffer;
+	return NULL;
 }
 
 bool UBYGTextToSpeechSoundWave::Initialize(const FString &VoiceRequiredAttributes, const FString &VoiceOptionalAttributes, int32 Rate, const FString &Text)
