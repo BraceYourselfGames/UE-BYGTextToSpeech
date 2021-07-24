@@ -35,17 +35,18 @@ public class BYGTextToSpeech : ModuleRules
 		}
 		else
 		{
-			var LibFolder = Path.Combine( ModuleDirectory, @"..\..\ThirdParty\atlmfc\lib\" );
-			var LibraryPath = Path.Combine( LibFolder, Target.Platform == UnrealTargetPlatform.Win64 ? "x64" : "x86" );
+			var AtlmfcFolder = @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30037\atlmfc";
+            var LibFolder = Path.Combine( AtlmfcFolder, "lib" );
+            var LibraryPath = Path.Combine( LibFolder, Target.Platform == UnrealTargetPlatform.Win64 ? "x64" : "x86" );
 
-			PublicSystemLibraryPaths.Add( LibraryPath );
-			PublicAdditionalLibraries.Add( Path.Combine( LibraryPath, @"atls.lib" ) );
+            PublicSystemLibraryPaths.Add( LibraryPath );
+            PublicAdditionalLibraries.Add( Path.Combine( LibraryPath, @"atls.lib" ) );
 
-			// This sucks, I wish there was a way to do this w/o an explicit path like this. Otherwise I get atlbase.h not found
-			//PrivateIncludePaths.Add( @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30037\atlmfc\include" );
-			PrivateIncludePaths.Add( Path.Combine( ModuleDirectory, @"..\..\ThirdParty\atlmfc\include" ) );
+            // This sucks, I wish there was a way to do this w/o an explicit path like this. Otherwise I get atlbase.h not found
+            PrivateIncludePaths.Add( Path.Combine( AtlmfcFolder, "include" ) );
+            //PrivateIncludePaths.Add( Path.Combine( ModuleDirectory, @"..\..\ThirdParty\atlmfc\include" ) );
 
-			PublicDefinitions.Add( "WITH_ATLSLIB=1" );
+            PublicDefinitions.Add( "WITH_ATLSLIB=1" );
 		}
 	}
 }

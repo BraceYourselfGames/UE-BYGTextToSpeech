@@ -17,6 +17,9 @@ Windows SAPI.
 1. Download the zip or clone the repository to `ProjectName/Plugins/BYGTextToSpeech`.
 2. Add `BYGTextToSpeech` to `.uproject` file
 3. Add `BYGTextToSpeech` to `PrivateDependencyModuleNames` inside `ProjectName.Build.cs`.
+4. Install ATL dependencies through Visual Studio. Run the Visual Studio 2019
+   installer and under Individual Modules make sure that "C++ ATL for latest
+   v142 build tools (x86 & x64) is checked".
 
 
 ## Limitations
