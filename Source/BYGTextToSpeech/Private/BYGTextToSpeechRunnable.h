@@ -8,6 +8,19 @@
 // Have to use typedef because of macro
 //DECLARE_DELEGATE_OneParam( FBYGOnTTSCompleteSignature, class USoundWave* /*SoundWave*/ );
 
+struct FBYGSoundWaveData
+{
+	unsigned long BytesRead = 0;
+	//TUniquePtr<uint8> Buffer;
+	uint8* Buffer = nullptr;
+
+	// Better pray it's been used by now
+	virtual ~FBYGSoundWaveData()
+	{
+		//delete Buffer;
+	}
+};
+
 class FBYGTextToSpeechRunnable : public FRunnable
 {
 public:
@@ -31,18 +44,25 @@ public:
 	{
 		return bRunning;
 	}
-	//FBYGOnTTSCompleteSignature OnTTSCompleteDelegate;
 
-	TArray<class USoundWave*> GetAndClearSoundWaves();
+	int32 GetTextQueueSize() const;
+	int32 GetSoundWaveDataSize() const;
+
+	TArray<FBYGSoundWaveData> GetAndClearSoundWaves();
 
 protected:
+	HRESULT WaitAndPumpMessagesWithTimeout( void* hWaitHandle, DWORD dwMilliseconds );
+	char* TextToWavInner( const wchar_t* voiceRequiredAttributes, const wchar_t* voiceOptionalAttributes, long rate, const wchar_t* textToRender, ULONG* pBytesRead );
+
 	TArray<FString> TextQueue;
-	TArray<class USoundWave*> SoundWaves;
+	TArray<FBYGSoundWaveData> SoundWaveData;
 
 	bool bRunning = false;
 
 	FString Attributes = "";
 	int32 Rate = 0;
+
+	bool bStopInner = false;
 
 	class FRunnableThread* Thread = nullptr;
 

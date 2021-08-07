@@ -1,5 +1,4 @@
 #include "BYGTextToSpeechStatics.h"
-#include "BYGTextToSpeechSoundWave.h"
 #if PLATFORM_WINDOWS
 
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -41,7 +40,7 @@ bool UBYGTextToSpeechStatics::SpeakText( const UObject* WorldContextObject, cons
 	USoundWave* SoundWave = TextToSoundWave( Text, Locale, Gender, Speed );
 	if ( SoundWave )
 	{
-		UGameplayStatics::PlaySound2D( WorldContextObject, SoundWave );
+		//UGameplayStatics::PlaySound2D( WorldContextObject, SoundWave );
 		return true;
 	}
 	return false;
@@ -73,20 +72,22 @@ USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const F
 
 	const int32 Rate = FMath::GetMappedRangeValueClamped( FVector2D( 0.0f, 1.0f ), FVector2D( -10, 10 ), Speed );
 
-	UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
-	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text.ToString() );
+	//UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
+	//TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text.ToString() );
 
-	return TTSSoundWave;
+	//return TTSSoundWave;
 #else
 	return nullptr;
 #endif
+	return nullptr;
 }
 
 USoundWave* UBYGTextToSpeechStatics::TextToSoundWaveAdvanced( FString VoiceRequiredAttributes, FString VoiceOptionalAttributes, int32 Rate, FString Text )
 {
-	UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
-	TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text );
-	return TTSSoundWave;
+	//UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
+	//TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text );
+	//return TTSSoundWave;
+	return nullptr;
 }
 
 

@@ -37,72 +37,71 @@ public:
 
 	// Begin USubsystem
 	virtual bool ShouldCreateSubsystem( UObject* Outer ) const override;
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Initialize( FSubsystemCollectionBase& Collection ) override;
 	virtual void Deinitialize() override;
 	// End USubsystem
 
 	// Call this to re-trigger audio being read
 	void ReadTextUnderCursor();
+
+	// Kills any text being read
 	void StopAudio();
 
-	// Disabling will stop any audio
 	bool GetIsEnabled() const { return bIsEnabled; }
+	// Disabling the plugin will stop any audio being read and kill any queued audio processing
 	void SetIsEnabled( bool bInIsEnabled );
 
 	bool GetIsAutoReadOnHoverEnabled() const { return bAutoReadOnHover; }
 	void SetAutoReadOnHoverEnabled( bool bInAutoRead ) { bAutoReadOnHover = bInAutoRead; }
 
 	float GetVolumeMultiplier() const { return VolumeMultiplier; }
+	// Expected range 0~1
 	void SetVolumeMultiplier( float InVolumeMultiplier ) { VolumeMultiplier = InVolumeMultiplier; }
 
 	bool SetVoiceId( const FString& InVoiceId );
 
 	float GetSpeed() const { return Speed; }
-	void SetSpeed( float InSpeed )
-	{
-		Speed = FMath::Clamp<float>( InSpeed, 0.0f, 1.0f );
-	}
+	// Expected range 0~1
+	void SetSpeed( float InSpeed ) { Speed = FMath::Clamp<float>( InSpeed, 0.0f, 1.0f ); }
+
+	void SpeakText( const TArray<FString>& Text );
 
 protected:
 	void Tick( float DeltaTime, enum ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent );
-	void SpeakText( const TArray<FString>& Text );
 
-	UPROPERTY()
-		TArray<USoundWave*> SoundWaveQueue;
+	TArray<FBYGSoundWaveData> SoundWaveDataQueue;
 
 	UFUNCTION()
 		void OnAudioFinishedDynamic();
 	UFUNCTION()
 		void OnAudioFinished( UAudioComponent* AudioComp );
 
-	bool bIsAudioFinished = false;
+	bool bIsPlayingAudio = false;
 
 	friend struct FBYGTextToSpeechSubsystemTickFunction;
 	FBYGTextToSpeechSubsystemTickFunction TickFunction;
 
 	/** The last frame number we were ticked.  We don't want to tick multiple times per frame */
-	uint32 LastFrameNumberWeTicked;
+	uint32 LastFrameNumberWeTicked = INDEX_NONE;
 
 	bool bIsEnabled = true;
 
-	bool bSplitByNewline = true;
-	bool bSplitBySentence = true;
+	TArray<TCHAR*> SplitDelims;
 
 	// We're assuming that the installed voice name is unique
-	FString VoiceName;
+	FString VoiceName = "";
 
 	bool bAutoReadOnHover = true;
 	float VolumeMultiplier = 1.0f;
 	float Speed = 0.5f;
 
-	TArray<FString> TextQueue;
-
 	TArray<FString> LastTextWeSpoke;
 	TWeakPtr<SWidget> LastParentWidgetWeSpoke;
 
-	class UAudioComponent* AudioComponent = nullptr;
+	UPROPERTY()
+		class UAudioComponent* AudioComponent;
 
-	TUniquePtr<FBYGTextToSpeechRunnable> TextToSpeechRunnable;
+	TUniquePtr<FBYGTextToSpeechRunnable> TextToSpeechRunnable = nullptr;
 };
 
 
