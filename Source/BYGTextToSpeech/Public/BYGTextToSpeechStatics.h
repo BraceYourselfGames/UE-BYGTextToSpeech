@@ -11,35 +11,35 @@ struct BYGTEXTTOSPEECH_API FBYGVoiceInfo
 
 public:
 	// e.g. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_DAVID_11.0" 
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString Id;
 
 	// Human-readable voice name e.g. Microsoft David Desktop
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString Name;
 
 	// Masculine, Feminine or Undefined
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	EBYGSpeakerGender Gender;
 
 	// e.g. Adult
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString Age;
 
 	// e.g. Microsoft
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString Vendor;
 
 	// e.g. 11.0
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString Version;
 
 	// This is a Windows Language ID (LCID) in hex, e.g. 409 for US English
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString LanguageID;
 
 	// 2 or 5-character locale code e.g. en-US, fr-FR
-	UPROPERTY( BlueprintReadOnly )
+	UPROPERTY( BlueprintReadOnly, Category = "BYG Text To Speech" )
 	FString LocaleName;
 };
 
@@ -58,7 +58,7 @@ public:
 	 * @return Whether the text was successfully spoken or not
 	 */
 	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech", meta = ( WorldContext = "WorldContextObject", AdvancedDisplay = 1, UnsafeDuringActorConstruction = "true" ) )
-	static bool SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, float Speed = 0.5f );
+	static bool SpeakText( const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, float Speed = 0.5f, const UObject* WorldContextObject = nullptr );
 
 	/** 
 	 * Creates and returns a Sound Wave containing the spoken text
@@ -69,15 +69,7 @@ public:
 	 * @return A USoundWave containing the speech data
 	 */
 	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech", meta = ( AdvancedDisplay = 1 ) )
-	static USoundWave* TextToSoundWave( const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, float Speed = 0.5f);
-
-	// This is a more raw version of the text to wave
-	/** 
-	 * This is a more raw version of the text to wave
-	 * @return An array of Voice Info structs
-	 */
-	UFUNCTION( BlueprintCallable, Category = "BYG Text To Speech" )
-	static USoundWave* TextToSoundWaveAdvanced( FString VoiceRequiredAttributes = "vendor=microsoft;language=409", FString VoiceOptionalAttributes = "", int32 Rate = 0, FString Text = "test" );
+	static class USoundWave* TextToSoundWave( const FText& Text, const FString& Locale = "en-US", EBYGSpeakerGender Gender = EBYGSpeakerGender::Undefined, float Speed = 0.5f, const UObject* WorldContextObject = nullptr );
 
 	/** 
 	 * Returns a list of all the voices that are installed on the machine

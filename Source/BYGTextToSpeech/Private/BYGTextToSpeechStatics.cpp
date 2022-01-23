@@ -33,25 +33,27 @@
 
 #endif
 
+#include "BYGTextToSpeechSubsystem.h"
+#include "Engine/Engine.h"
+#include "Sound/SoundWave.h"
 #include "Kismet/GameplayStatics.h"
 
-bool UBYGTextToSpeechStatics::SpeakText( const UObject* WorldContextObject, const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, float Speed )
+bool UBYGTextToSpeechStatics::SpeakText( const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, float Speed, const UObject* WorldContextObject )
 {
 	USoundWave* SoundWave = TextToSoundWave( Text, Locale, Gender, Speed );
 	if ( SoundWave )
 	{
-		//UGameplayStatics::PlaySound2D( WorldContextObject, SoundWave );
+		UGameplayStatics::PlaySound2D( WorldContextObject, SoundWave );
 		return true;
 	}
 	return false;
 }
 
 
-USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, float Speed )
+USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const FString& Locale, EBYGSpeakerGender Gender, float Speed, const UObject* WorldContextObject )
 {
 #if PLATFORM_WINDOWS
 	//vendor=microsoft;language=409
-
 
 	TArray<FString> RequiredAttributes;
 	// Convert from en-US to integer
@@ -75,21 +77,19 @@ USoundWave* UBYGTextToSpeechStatics::TextToSoundWave( const FText& Text, const F
 	//UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
 	//TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text.ToString() );
 
-	//return TTSSoundWave;
+	if ( const UWorld* World = GEngine->GetWorldFromContextObject( WorldContextObject, EGetWorldErrorMode::LogAndReturnNull ) )
+	{
+		UBYGTextToSpeechSubsystem* Subsystem = Cast<UBYGTextToSpeechSubsystem>( World->GetSubsystemBase( UBYGTextToSpeechSubsystem::StaticClass() ) );
+		if ( Subsystem )
+		{
+			Subsystem->SpeakText( { Text.ToString() } );
+		}
+	}
+	return nullptr;
 #else
 	return nullptr;
 #endif
-	return nullptr;
 }
-
-USoundWave* UBYGTextToSpeechStatics::TextToSoundWaveAdvanced( FString VoiceRequiredAttributes, FString VoiceOptionalAttributes, int32 Rate, FString Text )
-{
-	//UBYGTextToSpeechSoundWave* TTSSoundWave = NewObject<UBYGTextToSpeechSoundWave>();
-	//TTSSoundWave->Initialize( VoiceRequiredAttributes, VoiceOptionalAttributes, Rate, Text );
-	//return TTSSoundWave;
-	return nullptr;
-}
-
 
 TArray<FBYGVoiceInfo> UBYGTextToSpeechStatics::GetVoices()
 {
@@ -100,9 +100,9 @@ TArray<FBYGVoiceInfo> UBYGTextToSpeechStatics::GetVoices()
 
 	HRESULT hr = S_OK;
 
-	CComPtr<ISpVoice> cpVoice; //Will send data to ISpStream
-	CComPtr<ISpStream> cpStream; //Will contain IStream
-	CComPtr<IStream> cpBaseStream; //raw data
+	CComPtr<ISpVoice> cpVoice;       //Will send data to ISpStream
+	CComPtr<ISpStream> cpStream;     //Will contain IStream
+	CComPtr<IStream> cpBaseStream;   //raw data
 	ISpObjectToken* cpToken( NULL ); //Will set voice characteristics
 
 	hr = cpVoice.CoCreateInstance( CLSID_SpVoice );

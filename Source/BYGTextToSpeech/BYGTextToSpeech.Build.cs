@@ -6,47 +6,48 @@ public class BYGTextToSpeech : ModuleRules
 	public BYGTextToSpeech(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.NoSharedPCHs;
+		PrivatePCHHeaderFile = "Public/BYGTextToSpeechModule.h";
 
 		PublicDependencyModuleNames.AddRange(
-			new string[] {
+			new string[]
+			{
 				"Core",
 				"CoreUObject",
 				"Engine",
-				"InputCore",
 				"Media",
 			}
 		);
 
 		PrivateDependencyModuleNames.AddRange(
-			new string[] {
+			new string[]
+			{
 				"Slate",
-                "SlateCore",
-            }
-        );
+				"SlateCore",
+				"InputCore",
+			}
+		);
 
 		// Load atls.lib
-		if ( Target.Platform != UnrealTargetPlatform.Win64
+		if (Target.Platform != UnrealTargetPlatform.Win64
 #if !UE_5_0_OR_LATER
-			&& Target.Platform != UnrealTargetPlatform.Win32
+		    && Target.Platform != UnrealTargetPlatform.Win32
 #endif
-			)
+		)
 		{
-			PublicDefinitions.Add( "WITH_ATLSLIB=0" );
+			PublicDefinitions.Add("WITH_ATLSLIB=0");
 		}
 		else
 		{
-			var AtlmfcFolder = @"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30037\atlmfc";
-            var LibFolder = Path.Combine( AtlmfcFolder, "lib" );
-            var LibraryPath = Path.Combine( LibFolder, Target.Platform == UnrealTargetPlatform.Win64 ? "x64" : "x86" );
+			// If the Target.WindowsPlatform.ToolChainDir line doesn't work then manually specify the path
+			var atlmfcFolder = Path.Combine(Target.WindowsPlatform.ToolChainDir, "atlmfc");
+			var libFolder = Path.Combine(atlmfcFolder, "lib");
+			var libraryPath = Path.Combine(libFolder, Target.Platform == UnrealTargetPlatform.Win64 ? "x64" : "x86");
 
-            PublicSystemLibraryPaths.Add( LibraryPath );
-            PublicAdditionalLibraries.Add( Path.Combine( LibraryPath, @"atls.lib" ) );
+			PublicSystemLibraryPaths.Add(libraryPath);
+			PublicAdditionalLibraries.Add(Path.Combine(libraryPath, @"atls.lib"));
+			PrivateIncludePaths.Add(Path.Combine(atlmfcFolder, "include"));
 
-            // This sucks, I wish there was a way to do this w/o an explicit path like this. Otherwise I get atlbase.h not found
-            PrivateIncludePaths.Add( Path.Combine( AtlmfcFolder, "include" ) );
-            //PrivateIncludePaths.Add( Path.Combine( ModuleDirectory, @"..\..\ThirdParty\atlmfc\include" ) );
-
-            PublicDefinitions.Add( "WITH_ATLSLIB=1" );
+			PublicDefinitions.Add("WITH_ATLSLIB=1");
 		}
 	}
 }

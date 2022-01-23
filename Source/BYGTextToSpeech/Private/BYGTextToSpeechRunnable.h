@@ -10,15 +10,24 @@
 
 struct FBYGSoundWaveData
 {
+#if 0
+	FBYGSoundWaveData(
+		TArray<uint8> InBuffer,
+		unsigned long InBytesRead
+		)
+		: Buffer( MoveTemp( InBuffer ) )
+		, BytesRead( InBytesRead )
+	{
+
+	}
+#endif
+
+	TArray<uint8> Buffer;
 	unsigned long BytesRead = 0;
-	//TUniquePtr<uint8> Buffer;
-	uint8* Buffer = nullptr;
+	//uint8* Buffer = nullptr;
 
 	// Better pray it's been used by now
-	virtual ~FBYGSoundWaveData()
-	{
-		//delete Buffer;
-	}
+	//virtual ~FBYGSoundWaveData();
 };
 
 class FBYGTextToSpeechRunnable : public FRunnable
@@ -48,21 +57,22 @@ public:
 	int32 GetTextQueueSize() const;
 	int32 GetSoundWaveDataSize() const;
 
-	TArray<FBYGSoundWaveData> GetAndClearSoundWaves();
+	// Transfers ownership because we only want one clear owner of the sound wave data
+	void GetAndClearSoundWaves( TArray<TUniquePtr<FBYGSoundWaveData>>& OutData );
 
 protected:
 	HRESULT WaitAndPumpMessagesWithTimeout( void* hWaitHandle, DWORD dwMilliseconds );
-	char* TextToWavInner( const wchar_t* voiceRequiredAttributes, const wchar_t* voiceOptionalAttributes, long rate, const wchar_t* textToRender, ULONG* pBytesRead );
+	bool TextToWavInner( const wchar_t* voiceRequiredAttributes, const wchar_t* voiceOptionalAttributes, long rate, const wchar_t* textToRender, TArray<uint8>& OutBuffer );
 
 	TArray<FString> TextQueue;
-	TArray<FBYGSoundWaveData> SoundWaveData;
+	TArray<TUniquePtr<FBYGSoundWaveData>> SoundWaveData;
 
 	bool bRunning = false;
 
 	FString Attributes = "";
 	int32 Rate = 0;
 
-	bool bStopInner = false;
+	bool bCancelInnerLoop = false;
 
 	class FRunnableThread* Thread = nullptr;
 

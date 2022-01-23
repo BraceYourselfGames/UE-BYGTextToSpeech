@@ -4,30 +4,9 @@
 
 UBYGTextToSpeechSettings::UBYGTextToSpeechSettings( const FObjectInitializer& ObjectInitializer )
 {
+	TextSplitDelimiters = {
+		TEXT( "." ),
+		TEXT( "\r\n" ),
+		TEXT( "\n" )
+	};
 }
-
-
-bool UBYGTextToSpeechSettings::Validate()
-{
-	bool bAnyChanges = false;
-
-	// look for dups?
-
-	return bAnyChanges;
-}
-
-#if WITH_EDITOR
-void UBYGTextToSpeechSettings::PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent )
-{
-#if 0
-	if (
-		( PropertyChangedEvent.GetPropertyName() == GET_MEMBER_NAME_CHECKED( UBYGTextToSpeechSettings, PrimaryLanguageCode ) )
-		)
-	{
-	}
-	#endif
-
-	Super::PostEditChangeProperty( PropertyChangedEvent );
-
-}
-#endif

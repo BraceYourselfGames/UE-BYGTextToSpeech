@@ -41,41 +41,53 @@ public:
 	virtual void Deinitialize() override;
 	// End USubsystem
 
-	// Call this to re-trigger audio being read
-	void ReadTextUnderCursor();
-
 	// Kills any text being read
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	void StopAudio();
 
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	bool GetIsEnabled() const { return bIsEnabled; }
 	// Disabling the plugin will stop any audio being read and kill any queued audio processing
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	void SetIsEnabled( bool bInIsEnabled );
 
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	bool GetIsAutoReadOnHoverEnabled() const { return bAutoReadOnHover; }
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	void SetAutoReadOnHoverEnabled( bool bInAutoRead ) { bAutoReadOnHover = bInAutoRead; }
 
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	float GetVolumeMultiplier() const { return VolumeMultiplier; }
 	// Expected range 0~1
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	void SetVolumeMultiplier( float InVolumeMultiplier ) { VolumeMultiplier = InVolumeMultiplier; }
 
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	bool SetVoiceId( const FString& InVoiceId );
 
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	float GetSpeed() const { return Speed; }
 	// Expected range 0~1
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
 	void SetSpeed( float InSpeed ) { Speed = FMath::Clamp<float>( InSpeed, 0.0f, 1.0f ); }
 
-	void SpeakText( const TArray<FString>& Text );
+	// Adds text to the queue of things to be spoken
+	UFUNCTION(BlueprintCallable, Category = "BYG Text To Speech | Subsystem")
+	bool SpeakText( const TArray<FString>& Text, bool bStopExisting = true );
 
 protected:
 	void Tick( float DeltaTime, enum ELevelTick TickType, ENamedThreads::Type CurrentThread, const FGraphEventRef& MyCompletionGraphEvent );
 
-	TArray<FBYGSoundWaveData> SoundWaveDataQueue;
+	void CreateRunnable();
+	void CleanUpRunnable();
+	
+
+	TArray<TUniquePtr<FBYGSoundWaveData>> SoundWaveDataQueue;
 
 	UFUNCTION()
-		void OnAudioFinishedDynamic();
-	UFUNCTION()
-		void OnAudioFinished( UAudioComponent* AudioComp );
+	void OnAudioFinished( UAudioComponent* AudioComp );
 
+	float DurationRemaining = INDEX_NONE;
 	bool bIsPlayingAudio = false;
 
 	friend struct FBYGTextToSpeechSubsystemTickFunction;
@@ -86,20 +98,21 @@ protected:
 
 	bool bIsEnabled = true;
 
-	TArray<TCHAR*> SplitDelims;
+	TArray<const TCHAR*> SplitDelims;
 
 	// We're assuming that the installed voice name is unique
 	FString VoiceName = "";
 
-	bool bAutoReadOnHover = true;
+	bool bShowDebugLogs;
+	bool bAutoReadOnHover;
 	float VolumeMultiplier = 1.0f;
 	float Speed = 0.5f;
 
-	TArray<FString> LastTextWeSpoke;
+	FText LastTextWeSpoke;
 	TWeakPtr<SWidget> LastParentWidgetWeSpoke;
 
 	UPROPERTY()
-		class UAudioComponent* AudioComponent;
+	class UAudioComponent* AudioComponent;
 
 	TUniquePtr<FBYGTextToSpeechRunnable> TextToSpeechRunnable = nullptr;
 };

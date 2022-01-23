@@ -23,18 +23,31 @@ class BYGTEXTTOSPEECH_API UBYGTextToSpeechSettings : public UObject
 public:
 	UBYGTextToSpeechSettings( const FObjectInitializer& ObjectInitializer );
 
+	// Whether the subsystem is enabled by default
 	UPROPERTY( config, EditAnywhere, Category = "Text to Speech" )
+	bool bEnabled = true;
+	
+	// Whether the subsystem should automatically read text that it is hovered over
+	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta=(EditCondition="bEnabled") )
+	bool bAutoReadOnHover = false;
+
+	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta=(EditCondition="bEnabled") )
 	FString DefaultLocale = "en";
 
-	UPROPERTY( config, EditAnywhere, Category = "Text to Speech" )
-	EBYGSpeakerGender DefaultGender = EBYGSpeakerGender::Masculine;
+	// Volume multiplier. 1 is the max.
+	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta = ( UIMin = 0, UIMax = 1, EditCondition="bEnabled" ) )
+	float DefaultVolumeMultiplier = 1.0f;
 
-	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta = ( UIMin = 0, UIMax = 10 ) )
+	//UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta=(EditCondition="bEnabled") )
+	//EBYGSpeakerGender DefaultGender = EBYGSpeakerGender::Masculine;
+
+	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta = ( UIMin = 0, UIMax = 10, EditCondition="bEnabled" ) )
 	int32 DefaultRate = 5;
 
-	bool Validate();
-
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty( struct FPropertyChangedEvent& PropertyChangedEvent ) override;
-#endif
+	// Advanced usage. Text is split into asynchronously-parsed chunks using these characters.
+	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", AdvancedDisplay, meta=(EditCondition="bEnabled") )
+	TArray<FString> TextSplitDelimiters;
+	
+	UPROPERTY( config, EditAnywhere, Category = "Text to Speech", meta=(EditCondition="bEnabled") )
+	bool bShowDebugLogs = false;
 };
