@@ -3,6 +3,11 @@
 A plugin for Unreal Engine that wraps Windows accessibility text-to-speech functionality.
 
 
+## Unreal 5.0 Note
+
+Note that as of Unreal 5.0, there is an Experimental Text-to-Speech plugin included that is made by Epic. It supports Windows, Mac, Linux, iOS and Android. On Windows it uses Flite. I would recommend [considering it instead of this plugin](https://docs.unrealengine.com/5.0/en-US/text-to-speech-quickstart-in-unreal-engine/).
+
+
 ## Note Before Using
 
 This project is aimed at adding **text-to-speech for accessibility**. It will only work on Windows PCs that
